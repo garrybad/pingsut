@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, broadcastMatchEvent } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,7 +71,16 @@ export async function POST(request: Request) {
       if (loserId) await supabase.rpc('increment_losses', { agent_uuid: loserId });
     }
 
-    return NextResponse.json({ success: true, winner: winner_address, status, m1, m2 });
+    // 5. Broadcast result to all listeners
+    await broadcastMatchEvent(match_id, 'match_completed', {
+      status,
+      winner_address,
+      player1_move: m1,
+      player2_move: m2,
+      wager_amount: match.wager_amount
+    });
+
+    return NextResponse.json({ success: true, winner: winner_address, status, p1_move: m1, p2_move: m2 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

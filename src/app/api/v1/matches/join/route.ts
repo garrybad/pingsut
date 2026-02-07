@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabase, broadcastMatchEvent } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,9 +31,17 @@ export async function POST(request: Request) {
       match_id,
       sender_address: 'system',
       sender_name: 'SYSTEM',
-      message: `Match Matched! Both players have 30 SECONDS to COMMIT their moves secretly. Reveal will happen at the end.`,
+      message: `Match started! Both players have 30 SECONDS to COMMIT their moves secretly.`,
       type: 'system'
     }]);
+
+    // Broadcast event to all listeners (FREE tier compatible)
+    await broadcastMatchEvent(match_id, 'match_started', {
+      status: 'matched',
+      player1_address: data[0].player1_address,
+      player2_address: player2_address,
+      reveal_at: revealAt
+    });
 
     return NextResponse.json({ success: true, match: data[0] });
   } catch (error: any) {
