@@ -57,3 +57,15 @@ export async function sendMatchChat(chatData: {
   if (error) throw error;
   return data[0];
 }
+
+// New action to find a match by its blockchain ID
+export async function getMatchByBlockchainId(blockchainId: number) {
+  const { data, error } = await supabase
+    .from('matches')
+    .select('id')
+    .eq('blockchain_game_id', blockchainId)
+    .single();
+
+  if (error) return null;
+  return data.id;
+}

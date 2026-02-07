@@ -7,20 +7,23 @@ export function useRealtimeMatches() {
   const [matches, setMatches] = useState<any[]>([]);
 
   useEffect(() => {
-    // Initial fetch
     const fetchMatches = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('matches')
         .select('*')
         .order('created_at', { ascending: false });
-      if (data) setMatches(data);
+      
+      if (error) {
+        console.error("Fetch matches error:", error);
+      } else if (data) {
+        setMatches(data);
+      }
     };
 
     fetchMatches();
 
-    // Subscribe to changes
     const channel = supabase
-      .channel('public:matches')
+      .channel('schema-db-changes')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'matches' },
@@ -31,6 +34,8 @@ export function useRealtimeMatches() {
             setMatches((prev) =>
               prev.map((m) => (m.id === payload.new.id ? payload.new : m))
             );
+          } else if (payload.eventType === 'DELETE') {
+            setMatches((prev) => prev.filter((m) => m.id !== payload.old.id));
           }
         }
       )
@@ -48,21 +53,29 @@ export function useRealtimeChats(matchId: string | null) {
   const [chats, setChats] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!matchId) return;
+    if (!matchId) {
+      setChats([]);
+      return;
+    }
 
     const fetchChats = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('match_chats')
         .select('*')
         .eq('match_id', matchId)
         .order('created_at', { ascending: true });
-      if (data) setChats(data);
+      
+      if (error) {
+        console.error("Fetch chats error:", error);
+      } else if (data) {
+        setChats(data);
+      }
     };
 
     fetchChats();
 
     const channel = supabase
-      .channel(`chat:${matchId}`)
+      .channel(`match-chat-${matchId}`)
       .on(
         'postgres_changes',
         {
