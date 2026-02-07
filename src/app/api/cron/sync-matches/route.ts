@@ -7,10 +7,10 @@ export const dynamic = 'force-dynamic';
 
 const ABI = [
   "function gameCount() view returns (uint256)",
-  "function games(uint256) view returns (address player1, address player2, uint256 wager, uint8 tier, bytes32 commitment1, uint8 move2, bool completed, uint256 startTime)"
+  "function games(uint256) view returns (address player1, address player2, uint256 wager, uint8 tier, bytes32 commitment1, uint8 move2, bool completed, uint256 startTime, uint256 revealDeadline)"
 ];
 
-const CONTRACT_ADDRESS = "0x9caddbe8f818473D5BD389B6867bec7c9987Ae4d";
+const CONTRACT_ADDRESS = "0x02bD2cE9f911D51B47A0a5395A8B506c22e56C30";
 const RPC_URL = "https://testnet-rpc.monad.xyz";
 
 export async function GET() {
@@ -33,7 +33,10 @@ export async function GET() {
         player2_address: g.player2 === ethers.ZeroAddress ? null : g.player2,
         wager_amount: parseFloat(ethers.formatEther(g.wager)),
         tier: tiers[Number(g.tier)],
-        status: g.completed ? 'completed' : (g.player2 !== ethers.ZeroAddress ? 'matched' : 'waiting'),
+        status: g.completed ? 'completed' : 
+                (g.player2 !== ethers.ZeroAddress ? 
+                  (Number(g.revealDeadline) < Math.floor(Date.now() / 1000) ? 'timeout' : 'matched') 
+                : 'waiting'),
         updated_at: new Date().toISOString()
       };
 

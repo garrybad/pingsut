@@ -96,7 +96,7 @@ export default function AgentLabPage() {
                   <div>
                     <span className="text-white font-bold italic"># SKILL: PINGSUT</span><br/>
                     - Network: Monad Testnet<br/>
-                    - Contract: 0x9cad...Ae4d<br/>
+                    - Contract: 0x02bD...2C30<br/>
                     - Strategy: Commit-Reveal RPS<br/>
                     - Tiers: A (0.1) - E (0.5) MON
                   </div>

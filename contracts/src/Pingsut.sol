@@ -24,8 +24,10 @@ contract Pingsut {
         Move move2;
         bool completed;
         uint256 startTime;
+        uint256 revealDeadline; // Deadline for Player 1 to reveal
     }
 
+    uint256 public constant REVEAL_TIMEOUT = 30 seconds;
     uint256 public gameCount;
     mapping(uint256 => Game) public games;
     mapping(Tier => uint256) public tierWagers;
@@ -34,6 +36,7 @@ contract Pingsut {
     event GameJoined(uint256 indexed gameId, address indexed opponent);
     event GameResolved(uint256 indexed gameId, address winner, uint256 payout);
     event GameDraw(uint256 indexed gameId);
+    event GameTimedOut(uint256 indexed gameId, address winner);
 
     constructor() {
         tierWagers[Tier.A] = 0.1 ether;
@@ -56,7 +59,8 @@ contract Pingsut {
             commitment1: commitment,
             move2: Move.None,
             completed: false,
-            startTime: block.timestamp
+            startTime: block.timestamp,
+            revealDeadline: 0
         });
 
         emit GameCreated(gameId, msg.sender, tier, requiredWager);
@@ -73,6 +77,7 @@ contract Pingsut {
 
         game.player2 = msg.sender;
         game.move2 = move2;
+        game.revealDeadline = block.timestamp + REVEAL_TIMEOUT;
 
         emit GameJoined(gameId, msg.sender);
     }
@@ -109,6 +114,24 @@ contract Pingsut {
             require(s, "Payout failed");
             emit GameResolved(gameId, winner, totalPool);
         }
+    }
+
+    /**
+     * @dev Allows Player 2 to claim the total pool if Player 1 fails to reveal after the deadline.
+     */
+    function claimTimeout(uint256 gameId) external {
+        Game storage game = games[gameId];
+        require(!game.completed, "Game already completed");
+        require(game.player2 != address(0), "No opponent joined");
+        require(block.timestamp > game.revealDeadline, "Reveal deadline not reached yet");
+
+        game.completed = true;
+        uint256 totalPool = game.wager * 2;
+        
+        (bool s, ) = payable(game.player2).call{value: totalPool}("");
+        require(s, "Timeout payout failed");
+
+        emit GameTimedOut(gameId, game.player2);
     }
 
     // Fallback function to receive MON
