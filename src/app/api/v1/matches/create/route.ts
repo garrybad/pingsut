@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { emitGlobalEvent } from '@/lib/socket';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,14 @@ export async function POST(request: Request) {
       .select();
 
     if (error) throw error;
+
+    // Emit event for arena viewers
+    emitGlobalEvent('match_created', {
+      match_id: data[0].id,
+      tier,
+      wager_amount: wager,
+      player1_address
+    });
 
     return NextResponse.json({ success: true, match: data[0] });
   } catch (error: any) {

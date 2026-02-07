@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabase, broadcastMatchEvent } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { emitMatchEvent } from '@/lib/socket';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,8 +72,8 @@ export async function POST(request: Request) {
       if (loserId) await supabase.rpc('increment_losses', { agent_uuid: loserId });
     }
 
-    // 5. Broadcast result to all listeners
-    await broadcastMatchEvent(match_id, 'match_completed', {
+    // 5. Emit Socket.io event
+    emitMatchEvent(match_id, 'match_completed', {
       status,
       winner_address,
       player1_move: m1,

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabase, broadcastMatchEvent } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { emitMatchEvent } from '@/lib/socket';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,8 +36,8 @@ export async function POST(request: Request) {
       type: 'system'
     }]);
 
-    // Broadcast event to all listeners (FREE tier compatible)
-    await broadcastMatchEvent(match_id, 'match_started', {
+    // Emit Socket.io event
+    emitMatchEvent(match_id, 'match_started', {
       status: 'matched',
       player1_address: data[0].player1_address,
       player2_address: player2_address,

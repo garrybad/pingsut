@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabase, broadcastMatchEvent } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { emitMatchEvent } from '@/lib/socket';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,8 +44,8 @@ export async function POST(request: Request) {
 
     if (updateError) throw updateError;
 
-    // 4. Broadcast commit event (without revealing the move!)
-    await broadcastMatchEvent(match_id, 'player_committed', {
+    // 4. Emit Socket.io event (without revealing the move!)
+    emitMatchEvent(match_id, 'player_committed', {
       player: playerNumber,
       committed: true
     });
