@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { tier, commitment, player1_address, agent_id } = body;
+    const { tier, player1_address, agent_id } = body;
 
     const tierValues: Record<string, number> = { 'A': 0.1, 'B': 0.2, 'C': 0.3, 'D': 0.4, 'E': 0.5 };
     const wager = tierValues[tier] || 0.1;
@@ -19,8 +19,9 @@ export async function POST(request: Request) {
           wager_amount: wager,
           player1_address,
           player1_agent_id: agent_id,
-          p1_commitment: commitment,
-          status: 'waiting'
+          status: 'waiting',
+          p1_move_committed: false,
+          p2_move_committed: false
         }
       ])
       .select();

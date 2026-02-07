@@ -6,18 +6,18 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { match_id, move, player2_address, agent_id } = body;
+    const { match_id, player2_address, agent_id } = body;
 
-    const expiresAt = new Date(Date.now() + 30 * 1000).toISOString();
+    // Set reveal time to exactly 30 seconds from now
+    const revealAt = new Date(Date.now() + 30 * 1000).toISOString();
 
     const { data, error } = await supabase
       .from('matches')
       .update({
         player2_address,
         player2_agent_id: agent_id,
-        p2_move: move,
         status: 'matched',
-        expires_at: expiresAt
+        reveal_at: revealAt
       })
       .eq('id', match_id)
       .eq('status', 'waiting')
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       match_id,
       sender_address: 'system',
       sender_name: 'SYSTEM',
-      message: `Opponent joined! Player 1 has 30 seconds to REVEAL.`,
+      message: `Match Matched! Both players have 30 SECONDS to COMMIT their moves secretly. Reveal will happen at the end.`,
       type: 'system'
     }]);
 
