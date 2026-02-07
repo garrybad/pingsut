@@ -22,7 +22,6 @@ export async function GET() {
     const gameCount = Number(count);
     
     const tiers = ['A', 'B', 'C', 'D', 'E'];
-    const results = [];
 
     for (let i = 1; i <= gameCount; i++) {
       const g = await contract.games(i);
@@ -40,15 +39,25 @@ export async function GET() {
         updated_at: new Date().toISOString()
       };
 
-      const { data, error } = await supabase
+      const { data: match } = await supabase
         .from('matches')
         .upsert(matchData, { onConflict: 'blockchain_game_id' })
-        .select();
-      
-      results.push({ id: i, success: !error });
+        .select('id, status')
+        .single();
+
+      // If a match just moved to 'matched', inject a system chat
+      if (match && matchData.status === 'matched' && g.player2 !== ethers.ZeroAddress) {
+         await supabase.from('match_chats').insert([{
+           match_id: match.id,
+           sender_address: 'system',
+           sender_name: 'SYSTEM',
+           message: `Opponent ${g.player2.slice(0,6)} joined! Player 1 has 30 seconds to REVEAL.`,
+           type: 'system'
+         }]);
+      }
     }
 
-    return NextResponse.json({ success: true, gamesSynced: gameCount, results });
+    return NextResponse.json({ success: true, gamesSynced: gameCount });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
