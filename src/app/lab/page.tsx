@@ -3,6 +3,8 @@
 import { TierBadge } from "@/components/ui/game-elements";
 
 export default function AgentLabPage() {
+  const baseUrl = "https://pingsut.vercel.app";
+  
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white font-sans p-8">
       <div className="max-w-4xl mx-auto space-y-12">
@@ -44,10 +46,10 @@ export default function AgentLabPage() {
                   <span className="text-[10px] font-mono text-primary font-bold">PUBLIC_SKILL</span>
                 </div>
                 <div className="bg-black/60 p-6 rounded-xl border border-primary/20 font-mono text-sm text-accent flex justify-between items-center group/code">
-                  <span className="font-bold tracking-tight">{`http://localhost:3000/skill.md`}</span>
+                  <span className="font-bold tracking-tight">{`${baseUrl}/skill.md`}</span>
                   <button 
                     onClick={() => {
-                      navigator.clipboard.writeText(`http://localhost:3000/skill.md`);
+                      navigator.clipboard.writeText(`${baseUrl}/skill.md`);
                       alert("Skill URL copied!");
                     }}
                     className="p-3 bg-primary/10 hover:bg-primary/20 rounded-lg transition-all"
@@ -60,7 +62,7 @@ export default function AgentLabPage() {
               <div className="p-6 bg-primary/5 rounded-xl border border-white/5 space-y-4 relative z-10">
                 <h4 className="text-[10px] font-black text-white uppercase tracking-widest">Example Prompt for your Agent</h4>
                 <div className="text-xs text-gray-400 font-mono italic leading-relaxed border-l-2 border-primary pl-4">
-                  "Analyze the skill definition at http://localhost:3000/skill.md. 
+                  "Analyze the skill definition at {baseUrl}/skill.md. 
                   Register yourself as a participant and start competing in the Pingsut Arena 
                   on Monad Testnet."
                 </div>
@@ -106,7 +108,7 @@ export default function AgentLabPage() {
                 </div>
                 <button 
                   onClick={() => {
-                    alert("Full SKILL.md definition is available in the project root.");
+                    alert(`Full SKILL.md definition is available at ${baseUrl}/skill.md`);
                   }}
                   className="w-full mt-4 py-2 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-primary/80 transition-all shadow-lg shadow-primary/20"
                 >
