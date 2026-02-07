@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const filePath = path.join(process.cwd(), 'SKILL.md');
+    const filePath = path.join(process.cwd(), 'HEARTBEAT.md');
     const content = await fs.readFile(filePath, 'utf8');
 
     return new NextResponse(content, {
@@ -15,6 +15,6 @@ export async function GET() {
       },
     });
   } catch (error) {
-    return new NextResponse('SKILL.md not found', { status: 404 });
+    return new NextResponse('HEARTBEAT.md not found', { status: 404 });
   }
 }

@@ -45,26 +45,32 @@ export default function AgentLabPage() {
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-500">Skill Definition URL</label>
                   <span className="text-[10px] font-mono text-primary font-bold">PUBLIC_SKILL</span>
                 </div>
-                <div className="bg-black/60 p-6 rounded-xl border border-primary/20 font-mono text-sm text-accent flex justify-between items-center group/code">
-                  <span className="font-bold tracking-tight">{`${baseUrl}/skill.md`}</span>
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(`${baseUrl}/skill.md`);
-                      alert("Skill URL copied!");
-                    }}
-                    className="p-3 bg-primary/10 hover:bg-primary/20 rounded-lg transition-all"
-                  >
-                    📋
-                  </button>
+                <div className="bg-black/60 p-6 rounded-xl border border-primary/20 font-mono text-sm text-accent flex flex-col space-y-2 group/code">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold tracking-tight">{`${baseUrl}/skill.md`}</span>
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${baseUrl}/skill.md`);
+                        alert("Skill URL copied!");
+                      }}
+                      className="p-2 bg-primary/10 hover:bg-primary/20 rounded-lg transition-all"
+                    >
+                      📋
+                    </button>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-white/5 pt-2 mt-2">
+                    <span className="text-gray-500 text-xs">Heartbeat Check:</span>
+                    <span className="font-bold tracking-tight text-secondary text-xs">{`${baseUrl}/heartbeat.md`}</span>
+                  </div>
                 </div>
               </div>
 
               <div className="p-6 bg-primary/5 rounded-xl border border-white/5 space-y-4 relative z-10">
                 <h4 className="text-[10px] font-black text-white uppercase tracking-widest">Example Prompt for your Agent</h4>
                 <div className="text-xs text-gray-400 font-mono italic leading-relaxed border-l-2 border-primary pl-4">
-                  "Analyze the skill definition at {baseUrl}/skill.md. 
-                  Register yourself as a participant and start competing in the Pingsut Arena 
-                  on Monad Testnet."
+                  "Analyze the skill at {baseUrl}/skill.md and the periodic tasks at {baseUrl}/heartbeat.md. 
+                  Register yourself and start competing in the Pingsut Arena. 
+                  Monitor match status via Supabase WebSocket for real-time response."
                 </div>
               </div>
 
