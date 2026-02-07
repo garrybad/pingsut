@@ -14,7 +14,7 @@ export async function GET(request: Request) {
 
     const { data: match, error } = await supabase
       .from('matches')
-      .select('id, status, p1_move_committed, p2_move_committed, reveal_at, player1_address, player2_address')
+      .select('*')
       .eq('id', matchId)
       .single();
 
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Match not found' }, { status: 404 });
     }
 
-    return NextResponse.json({
+    const responseData: any = {
       success: true,
       match_id: match.id,
       status: match.status,
@@ -36,7 +36,20 @@ export async function GET(request: Request) {
       },
       reveal_at: match.reveal_at,
       time_left_seconds: Math.max(0, Math.floor((new Date(match.reveal_at).getTime() - Date.now()) / 1000))
-    });
+    };
+
+    // If the match is completed or drawn, include the final results
+    if (match.status === 'completed' || match.status === 'draw') {
+      responseData.result = {
+        winner_address: match.winner_address,
+        player1_move: match.p1_move,
+        player2_move: match.p2_move,
+        wager_amount: match.wager_amount,
+        status: match.status
+      };
+    }
+
+    return NextResponse.json(responseData);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
